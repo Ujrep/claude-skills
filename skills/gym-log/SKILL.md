@@ -1,6 +1,6 @@
 ---
 name: gym-log
-description: Parse a freely-formatted workout transcript (typed or voice-memo dump) and create the matching Session + Sets in Notion. Use when the user pastes a workout summary like "chest day 50min RPE 8, bench 60x8x3, incline DB 22x10x3..." and wants it logged.
+description: Parse a freely-formatted workout transcript (typed or voice-memo dump) and create the matching Session + Sets in Notion. Use when the user pastes a workout summary like "push day 50min RPE 8, bench 60x8x3, incline DB 22x10x3..." and wants it logged.
 user_invocable: true
 ---
 
@@ -60,7 +60,7 @@ triceps cable 30x12, 30x10, 27x8
 
 Conventions to recognize:
 
-- **First line**: session name + duration + RPE. e.g. `chest day 50min RPE 8` or `legs 60min`.
+- **First line**: session name + duration + RPE. e.g. `push day 50min RPE 8` or `legs 60min`. Canonical session names: `Push day` (chest, shoulders, triceps), `Pull day` (back, biceps, rear delts), `Leg day`, `Full body`, plus sport names. If the user says "chest day" or "arms day", map to `Push day` / `Pull day` (legacy aliases).
 - **Each subsequent line**: an exercise. Format: `<exercise> <set-pattern>`.
 - **Set pattern**:
   - `WxR` = one set of W kg × R reps
@@ -84,9 +84,11 @@ For each exercise mention:
 
 ## Step 3 — Determine session Type / Sport
 
-- Name matches a hypertrophy split (chest, arms, legs, back, shoulders, push, pull, full body, upper, lower) → `Type = Hypertrophy` (default). Ask if it's actually Strength.
+- Name matches a hypertrophy split (push, pull, legs, full body, upper, lower; or legacy aliases chest/arms/back/shoulders) → `Type = Hypertrophy` (default). Ask if it's actually Strength.
 - Name matches a sport (squash, badminton, tennis, running, cycling) → `Type = Sport`, `Sport = <matched>`.
 - Otherwise — ask.
+
+When normalizing the title for storage, use the canonical name (`Push day`, `Pull day`, `Leg day`) regardless of what the user typed.
 
 ## Step 4 — Find Previous session
 
