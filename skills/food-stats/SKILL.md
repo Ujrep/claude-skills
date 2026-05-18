@@ -70,11 +70,11 @@ Then aggregate:
 ### Page layout (preserve this order)
 
 1. Daily targets callout
-2. `## 📅 Today` — inline Food Log view
-3. `## 📊 Stats` — this section (insert/refresh here)
-4. `## 📚 Foods catalog` — inline Foods view
+2. `## 📊 Stats` — this section, near the top
+3. `## 📅 Today` — inline Food Log view
+4. Foods catalog inside a collapsed `<details>` toggle at the bottom
 
-Place `## 📊 Stats` between `## 📅 Today` and `## 📚 Foods catalog`.
+Place `## 📊 Stats` between the daily targets callout and `## 📅 Today`. Do not unwrap or reorder the Foods catalog toggle — Stefan wants it collapsed and out of the way.
 
 Use `mcp__notion__notion-update-page` with `update_content`. Use surgical edits on the callout block and table rows.
 
