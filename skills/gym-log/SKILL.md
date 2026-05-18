@@ -20,7 +20,7 @@ Use this when the user pastes a workout summary (typically from a voice memo or 
 - `Session` (title): e.g. "Chest day"
 - `Date` (date)
 - `Type` (select: Strength / Hypertrophy / Cardio / Mobility / Sport / Other)
-- `Sport` (select: Squash / Badminton / Tennis / Running / Cycling / Other) — only when Type=Sport
+- `Sport` (select: Squash / Badminton / Tennis / Running / Cycling / Swimming / Other) — only when Type=Sport
 - `Duration (min)` (number)
 - `RPE (1-10)` (number)
 - `Notes` (text)
@@ -85,7 +85,7 @@ For each exercise mention:
 ## Step 3 — Determine session Type / Sport
 
 - Name matches a hypertrophy split (push, pull, legs, full body, upper, lower; or legacy aliases chest/arms/back/shoulders) → `Type = Hypertrophy` (default). Ask if it's actually Strength.
-- Name matches a sport (squash, badminton, tennis, running, cycling) → `Type = Sport`, `Sport = <matched>`.
+- Name matches a sport (squash, badminton, tennis, running, cycling, swimming) → `Type = Sport`, `Sport = <matched>`.
 - Otherwise — ask.
 
 When normalizing the title for storage, use the canonical name (`Push day`, `Pull day`, `Leg day`) regardless of what the user typed.
