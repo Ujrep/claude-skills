@@ -23,23 +23,26 @@ Use this when the user asks to update / refresh / show water consumption stats.
 ## Constants
 
 - **Daily goal**: 3000 ml
-- **Default drink amounts** (matches the buttons; form drinks may differ): Water 330, Coffee 200, Tea 250, Zero-sugar 330
+- **Default drink amounts** (matches the buttons; form drinks may differ): Water 330, Coffee 200, Tea 250, Zero-sugar 330, Beer 400
+- **Non-hydrating drinks** (excluded from goal totals): drinks whose title contains `Beer`, `Wine`, `Cocktail`, or `Spirits` (case-insensitive). Alcohol is diuretic — counting it toward hydration would overstate progress.
 
 ## Step 1 — Pull all drink entries
 
-Use `mcp__notion__notion-search` with `data_source_url=collection://e253a790-7d40-46f8-8388-fc09b9924fa9`. Search caps at 25 results — paginate by varying query terms (`water`, `coffee`, `tea`, `zero`, plus date strings) until results stabilize.
+Use `mcp__notion__notion-search` with `data_source_url=collection://e253a790-7d40-46f8-8388-fc09b9924fa9`. Search caps at 25 results — paginate by varying query terms (`water`, `coffee`, `tea`, `zero`, `beer`, plus date strings) until results stabilize.
 
-For each entry, you need `Logged` date and `Amount`. If a search result doesn't surface Amount, fetch the page directly with `mcp__notion__notion-fetch`.
+For each entry, you need `Logged` date, `Drink` (title), and `Amount`. If a search result doesn't surface Amount, fetch the page directly with `mcp__notion__notion-fetch`.
 
 To minimize fetches: batch-fetch only entries not already cached. If a refresh was done recently, you can skip pulling pre-existing entries and just pull anything `Logged > last_refresh_timestamp`.
 
 ## Step 2 — Compute stats
 
-Group drinks by `Day` (the formatDate result). For each day, compute:
+Group drinks by `Day` (the formatDate result). Before summing, **exclude any drink whose title matches a non-hydrating drink pattern** (see Constants). For each day, compute:
 
-- **Total ml** = sum of `Amount` for that day
+- **Total ml** = sum of `Amount` for hydrating drinks that day
 - **Goal hit?** = Total ml ≥ 3000
 - **% of goal** = round(Total ml / 30)
+
+Non-hydrating drinks (e.g. beer) still appear in the Drinks Log but do **not** count toward the goal. Mention them in the footnote so the user knows they were excluded.
 
 Then aggregate across days:
 
