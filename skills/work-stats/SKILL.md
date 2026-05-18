@@ -1,6 +1,7 @@
 ---
 name: work-stats
 description: Refresh the Stats page in Notion (monthly hours, earnings, taxes, net income). Use when the user asks to update stats, recalculate earnings/taxes, refresh the stats page, or add new hours after logging Daily Work entries.
+user_invocable: true
 ---
 
 # Work Stats — Refresh Workflow

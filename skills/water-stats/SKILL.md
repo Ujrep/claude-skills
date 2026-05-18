@@ -1,6 +1,7 @@
 ---
 name: water-stats
 description: Refresh the Water Tracker stats section in Notion (daily totals, goal hit rate, streaks, averages — all against the 3000 ml/day goal). Use when the user asks to refresh water stats, see hydration history, or check progress toward the daily goal.
+user_invocable: true
 ---
 
 # Water Tracker Stats — Refresh Workflow

@@ -1,6 +1,7 @@
 ---
 name: daily-scrum
 description: Generate the daily standup report (Yesterday / Today / Blockers) from Notion Daily Work entries. Every line starts with the ticket ID, then the title, then details. Use whenever the user asks for a daily scrum or a daily standup.
+user_invocable: true
 ---
 
 # Daily Scrum Report

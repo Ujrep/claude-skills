@@ -1,6 +1,7 @@
 ---
 name: gym-summary
 description: Refresh the Stats summary on the Gym Tracker page (sessions/week, weekly volume, calories, current streak, top lifts, underworked muscle groups). Use when the user asks for a gym summary, weekly training review, or to refresh the Gym Tracker stats.
+user_invocable: true
 ---
 
 # Gym Summary — Stats Refresh
