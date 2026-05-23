@@ -102,6 +102,10 @@ Use the `<table>` Notion markdown for the daily table, not Markdown pipe-tables 
 - `🥇` = best day ever
 - (nothing) = nothing notable
 
+## Tone — important
+
+After refreshing, the chat reply is **data only** — what changed on the page, what today's number is, any clarifying question. No moralizing about beer, no "drink more water!" nudges, no judgment if streak broke.
+
 ## Step 4 — Sanity checks before saving
 
 - Sum of Last 7 days totals matches independent calc

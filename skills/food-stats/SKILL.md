@@ -119,6 +119,24 @@ For each day, status = combination of two flags:
 - `💪` streak ≥ 7 days
 - `🥇` best protein day ever
 
+## Tone — important
+
+After logging or refreshing, the chat reply must be **data only**. The user is tracking what he eats; he is **not** asking for nutritional advice, judgment about specific foods (beer, pizza, salami, mayo, wafers, etc.), or comparisons across days framed as failure/success.
+
+**Do** present:
+- What was added (food + grams + computed kcal/macros)
+- Today's running total vs targets
+- Any necessary clarification questions about portions
+
+**Do not** present:
+- "Honest read" / "Verdict" / "Quick reality check" paragraphs
+- Reminders that he missed protein / went over kcal — the table already shows that
+- Suggestions for dinner unless he asked
+- Moralizing about specific foods or alcohol
+- Framing days as "good" or "bad"
+
+If he asks for a recommendation, give a tight one without judgment about prior days.
+
 ## Step 4 — Sanity checks before saving
 
 - Sum of Last 7 days kcal matches independent calc

@@ -98,6 +98,23 @@ Use `<table>` Notion markdown, not pipe tables.
 - `🏆` ≥ 1 PR hit this period
 - (nothing) — nothing notable
 
+## Tone — important
+
+After refreshing, the chat reply must be **data only**. The user is tracking his training; he is **not** asking for programming critique or nagging about gaps (legs, back, cardio).
+
+**Do** present:
+- Numbers updated on the page (sessions, volume, streak, PRs, top lifts)
+- Anything notable in the data itself (a new PR exists, streak hit a milestone)
+- Clarifying questions if input is ambiguous
+
+**Do not** present:
+- "Honest read" / "Verdict" paragraphs
+- "You should add a leg day" / "back is undertrained" / "cardio is missing" unless he asked
+- Comparisons framed as failure (e.g. "still 1 leg day in 5 weeks")
+- Unsolicited programming recommendations
+
+If he asks "what should I do next" — recommend tightly, without judgment about prior weeks.
+
 ## Step 4 — Sanity checks before saving
 
 - Volume sums across weeks should match independent tally
