@@ -121,10 +121,14 @@ Use `mcp__notion__notion-update-page` with `command: replace_content` on the Sta
 
 ## When new data arrives
 
-If the user provides hours for past dates that aren't yet in the Daily Work DB:
+If the user provides hours for a date (e.g. "today I worked 6h"):
 
-1. Create entries with `mcp__notion__notion-create-pages` to data source `fe44d695-a91a-4f0e-9740-38c5b65cb569`. Set `Date` (YYYY-MM-DD), `date:Work Date:start`, `Hours worked`, `Status: Done`. Leave Summary blank unless the user provided one.
+1. **Find-or-create — never blind-create.** First search the Daily Work data source for an existing entry with that `Date`/`Work Date` (`mcp__notion__notion-search` filtered by date, or check the entries already pulled in Step 1). The user often logs a ticket-summary entry for the day via the work-context skill **before** giving you hours — that entry already exists.
+   - **If an entry for the date exists**: `update_properties` to set its `Hours worked` (and `Status: Done`). Do NOT touch its `Summary`. Do NOT create a second row.
+   - **If no entry exists**: create one with `mcp__notion__notion-create-pages` to data source `fe44d695-a91a-4f0e-9740-38c5b65cb569`. Set `Date` (YYYY-MM-DD), `date:Work Date:start`, `Hours worked`, `Status: Done`. Leave Summary blank.
 2. Then re-run Steps 1–5 to refresh the page.
+
+**Duplicate guard**: one Daily Work entry per date. If you ever find two rows with the same date (one with a Summary, one hours-only), the Summary entry is canonical — move its hours onto it and remove the hours-only duplicate.
 
 ## Things this skill deliberately does not do
 
