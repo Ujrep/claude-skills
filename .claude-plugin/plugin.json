@@ -1,7 +1,7 @@
 {
   "name": "notion-trackers",
-  "description": "Personal Notion trackers: work hours/earnings/taxes, investigations + daily work, water intake, gym sessions, daily standup.",
-  "version": "0.3.1",
+  "description": "Personal Notion trackers: work hours/earnings/taxes, ticket tasks + investigations, water intake, food logging, gym sessions, daily standup.",
+  "version": "0.4.0",
   "homepage": "https://github.com/Ujrep/claude-skills",
   "repository": "https://github.com/Ujrep/claude-skills"
 }
