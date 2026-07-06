@@ -8,7 +8,7 @@ user_invocable: true
 
 Manage investigation pages and Tasks in Notion as a single workflow. Every action on a ticket updates one Task (find-or-create by ticket ID) and its investigation page if one exists.
 
-**No more Daily Work Summaries.** The Daily Work DB is still used for `Hours worked` only (consumed by work-stats). Ticket-level detail lives in the Tasks DB.
+**No more Daily Work anything.** The old Daily Work DB is trashed. Ticket-level detail lives in the Tasks DB; hours live in the separate Hours Log DB (owned by the work-stats skill).
 
 ## Inputs the user must provide (or that must already be in memory)
 
@@ -47,9 +47,9 @@ All IDs below are stable — use them directly without searching.
 - Title format: `<TICKET> — <short description>`
 - Icon convention: `🏷️` for new investigations (existing ones may use other emojis — leave them)
 
-### Daily Work DB (Hours only)
-- Data source: `collection://fe44d695-a91a-4f0e-9740-38c5b65cb569`
-- Used ONLY for `Hours worked` (consumed by work-stats)
+### Hours Log DB (hours only — owned by work-stats)
+- Data source: `collection://c1eaa722-a204-41e2-8dc1-f9b88b2bfa63`
+- One row per worked day: `Date` (title), `Work Date` (date), `Hours` (number). This skill never writes to it.
 - Do NOT write ticket summaries here anymore. The `Summary` field is deprecated for new entries.
 
 ## Task conventions
@@ -199,7 +199,7 @@ If you find an investigation that has been worked on (a Task references it and i
 - **One Task per ticket, ever.** Always search first. Never create a duplicate.
 - **All context in the task body**, not sub-tasks.
 - **Investigation pages remain the historical record** for tickets that have them — never rewrite; append.
-- **Daily Work Summary is deprecated** — do NOT write summary bullets to Daily Work entries anymore. `Hours worked` on Daily Work is still set by the user only; never auto-populate.
-- **Hours on the Task** is a separate, optional informational field. It does NOT drive work-stats; work-stats reads Daily Work.Hours worked.
+- **The old Daily Work DB is trashed** — never write to it; pages created there land in Notion trash silently.
+- **Hours on the Task** is a separate, optional informational field. It does NOT drive work-stats; work-stats reads Hours Log.Hours (user-entered only — never auto-populate).
 - Always pull today's date from the system `currentDate` context — do not guess.
 - If the user asks to "update Notion" without specifying which ticket, ask. Don't assume.

@@ -1,6 +1,6 @@
 ---
 name: work-stats
-description: Refresh the Stats page in Notion (monthly hours, earnings, taxes, net income). Use when the user asks to update stats, recalculate earnings/taxes, refresh the stats page, or add new hours after logging Daily Work entries.
+description: Refresh the Stats page in Notion (monthly hours, earnings, taxes, net income). Use when the user asks to update stats, recalculate earnings/taxes, refresh the stats page, or add new hours to the Hours Log.
 user_invocable: true
 ---
 
@@ -22,15 +22,21 @@ If any of these change (rate increase, new tax year, new client), update memory.
 ## Entities (do not guess — these are stable per workspace)
 
 - **Stats page**: `34f1055f-5461-81f4-8d32-d5fee62361ea`
-- **Daily Work database**: `6f4a5a07-2376-4e1b-96f3-00dd475afe24`
-- **Daily Work data source**: `collection://fe44d695-a91a-4f0e-9740-38c5b65cb569`
-- **Daily Work properties**: `Date` (title), `Work Date` (date), `Hours worked` (number), `Status`, `Summary`
+- **Hours Log database**: `15ae2893-071b-4c18-9abf-19fb057203e3` (under the Trackers page)
+- **Hours Log data source**: `collection://c1eaa722-a204-41e2-8dc1-f9b88b2bfa63`
+- **Hours Log properties**: `Date` (title, YYYY-MM-DD), `Work Date` (date), `Hours` (number)
+
+(The pre-2026-07 Daily Work DB is trashed; its hours history was migrated into Hours Log on 2026-07-06. Never write to the old DB.)
 
 ## Step 1 — Pull data
 
-Use `mcp__notion__notion-search` with `data_source_url=collection://fe44d695-a91a-4f0e-9740-38c5b65cb569` to enumerate Daily Work entries. Search caps at 25 results per call — paginate with multiple distinct queries (e.g. `2026-01`, `2026-02`, …) if needed.
+Use `mcp__notion__notion-query-data-sources` (SQL mode) on `collection://c1eaa722-a204-41e2-8dc1-f9b88b2bfa63`:
 
-For each entry, capture `Date` (title in `YYYY-MM-DD` format) and `Hours worked`.
+```sql
+SELECT Date, Hours FROM "collection://c1eaa722-a204-41e2-8dc1-f9b88b2bfa63" WHERE Hours IS NOT NULL ORDER BY Date ASC
+```
+
+For each row, capture `Date` (title in `YYYY-MM-DD` format) and `Hours`.
 
 If hours are missing on an entry, fetch the page individually to read its property.
 
@@ -49,8 +55,8 @@ Use the returned rate as the EUR→RON conversion. Note the date the rate was pu
 
 For each month present in the data:
 
-- **Hours** = sum of `Hours worked`
-- **Days** = count of entries with `Hours worked > 0`
+- **Hours** = sum of `Hours`
+- **Days** = count of entries with `Hours > 0`
 - **Avg/day** = Hours ÷ Days (2 decimals)
 - **Gross (€)** = Hours × `<hourly_rate>` (from memory/input)
 - **Tax (€)** = Gross × `<effective_rate>` (computed in Step 4)
@@ -123,12 +129,12 @@ Use `mcp__notion__notion-update-page` with `command: replace_content` on the Sta
 
 If the user provides hours for a date (e.g. "today I worked 6h"):
 
-1. **Find-or-create — never blind-create.** First search the Daily Work data source for an existing entry with that `Date`/`Work Date` (`mcp__notion__notion-search` filtered by date, or check the entries already pulled in Step 1). The user often logs a ticket-summary entry for the day via the work-context skill **before** giving you hours — that entry already exists.
-   - **If an entry for the date exists**: `update_properties` to set its `Hours worked` (and `Status: Done`). Do NOT touch its `Summary`. Do NOT create a second row.
-   - **If no entry exists**: create one with `mcp__notion__notion-create-pages` to data source `fe44d695-a91a-4f0e-9740-38c5b65cb569`. Set `Date` (YYYY-MM-DD), `date:Work Date:start`, `Hours worked`, `Status: Done`. Leave Summary blank.
+1. **Find-or-create — never blind-create.** Check the rows already pulled in Step 1 for that date.
+   - **If a row for the date exists**: `update_properties` to set its `Hours`. Do NOT create a second row.
+   - **If no row exists**: create one with `mcp__notion__notion-create-pages` to data source `c1eaa722-a204-41e2-8dc1-f9b88b2bfa63`. Set `Date` (YYYY-MM-DD), `date:Work Date:start` (+ `date:Work Date:is_datetime: 0`), `Hours`.
 2. Then re-run Steps 1–5 to refresh the page.
 
-**Duplicate guard**: one Daily Work entry per date. If you ever find two rows with the same date (one with a Summary, one hours-only), the Summary entry is canonical — move its hours onto it and remove the hours-only duplicate.
+**Duplicate guard**: one Hours Log row per date. If you ever find two rows with the same date, keep one and flag the duplicate to the user (the MCP has no delete tool).
 
 ## Things this skill deliberately does not do
 
