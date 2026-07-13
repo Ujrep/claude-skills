@@ -8,7 +8,7 @@ user_invocable: true
 
 Use this when the user asks for a daily scrum, daily standup, or "give me my standup".
 
-For Notion writes (creating/updating Tasks, updating investigation pages), defer to the **work-context** skill. This skill covers only the *report* generation and the *format rule*.
+For Notion writes (creating/updating Tasks, including their embedded Investigation sections), defer to the **work-context** skill. This skill covers only the *report* generation and the *format rule*.
 
 ## Inputs the user must provide (or that must already be in memory)
 

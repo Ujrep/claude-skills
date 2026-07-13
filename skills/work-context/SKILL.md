@@ -1,14 +1,16 @@
 ---
 name: work-context
-description: Manage investigation pages and Tasks in Notion. Use when the user asks to update an investigation, log work on a ticket, mark work as shipped, or create/update a task for a ticket. Keeps investigations and Tasks cross-linked.
+description: Manage Tasks in Notion, including their embedded investigations. Use when the user asks to update an investigation, log work on a ticket, mark work as shipped, or create/update a task for a ticket. Investigations live inside the Task body, not as separate pages.
 user_invocable: true
 ---
 
-# Work Context — Investigations + Tasks
+# Work Context — Tasks (with embedded investigations)
 
-Manage investigation pages and Tasks in Notion as a single workflow. Every action on a ticket updates one Task (find-or-create by ticket ID) and its investigation page if one exists.
+Manage ticket work in Notion through a single artifact: the Task. Every action on a ticket updates one Task (find-or-create by ticket ID). Investigation content lives **inside the Task body** as an `## Investigation` section — do NOT create standalone investigation pages.
 
 **No more Daily Work anything.** The old Daily Work DB is trashed. Ticket-level detail lives in the Tasks DB; hours live in the separate Hours Log DB (owned by the work-stats skill).
+
+**No more investigation pages.** The old Investigations parent page (`3501055f54618132899be65e6e52acac`) is a legacy archive — read it when historical context helps, link to a legacy page from a Task if one exists, but never create or extend pages there.
 
 ## Inputs the user must provide (or that must already be in memory)
 
@@ -16,7 +18,6 @@ Check memory for these. If missing, ask **once** and save under type `user`:
 
 - **Ticket prefix** — e.g. `BAB` — the project's Linear/Jira identifier
 - **Linear workspace slug** — used to build Linear URLs as `https://linear.app/<slug>/issue/<TICKET>`
-- **Investigations parent page name** — for display only
 
 Use these wherever the workflow references a ticket or Linear URL.
 
@@ -41,11 +42,9 @@ All IDs below are stable — use them directly without searching.
 - Data source: `collection://8fd1055f-5461-83ca-88e9-070af04ff417`
 - **Babele project**: `3911055f-5461-8129-a1dd-f378c36c2b25` — use this for all `BAB-*` tickets
 
-### Investigations
+### Legacy Investigations archive (read-only)
 - Parent page: `3501055f54618132899be65e6e52acac`
-- Each investigation is a standalone Notion page (not a database row)
-- Title format: `<TICKET> — <short description>`
-- Icon convention: `🏷️` for new investigations (existing ones may use other emojis — leave them)
+- Contains pre-2026-07-13 standalone investigation pages. Never create or extend pages here. If a legacy page exists for a ticket, link it from the Task header line; new investigation content still goes in the Task body.
 
 ### Hours Log DB (hours only — owned by work-stats)
 - Data source: `collection://c1eaa722-a204-41e2-8dc1-f9b88b2bfa63`
@@ -74,11 +73,11 @@ All IDs below are stable — use them directly without searching.
 
 ### Task body (page content)
 
-Append work notes inside the task body page as work progresses. Keep it lean:
+The task body is the single record for the ticket: progress log, PRs, notes, and — when the ticket needed one — the full investigation. Section order:
 
 ```markdown
 **Linear:** [https://linear.app/<slug>/issue/<TICKET>](...)
-**Investigation:** [<TICKET> — <title>](notion-url)   ← only if investigation exists
+**Legacy investigation:** [<TICKET> — <title>](notion-url)   ← only if a pre-cutover page exists
 
 ## Progress
 - YYYY-MM-DD — <what was done that day>
@@ -87,35 +86,39 @@ Append work notes inside the task body page as work progresses. Keep it lean:
 ## PRs
 - [PR #N](url) — <short description>
 
+## Investigation                        ← only when the ticket required one
+**Status:** <one short sentence, kept current — see status vocabulary>
+
+### Problem
+<what's broken / what was asked>
+
+### Root cause / Analysis
+<findings, options, why-not-X discussion, file:line references>
+
+### Plan / Quick-fix plan
+<the agreed approach>
+
+### Key files
+<file — role bullets>
+
+### Implementation ([PR #X](url))      ← appended after implementation; never replaces the plan
+<what actually shipped, deviations from plan>
+
 ## Notes
 <free-form observations, follow-ups, edge cases, decisions>
 ```
 
 Rules:
-- **Ticket with investigation** → investigation is the deep record; task body just links to it and tracks Progress bullets + PRs + short Notes
-- **Ticket without investigation** → everything (including deeper context) goes in the task body Notes section
-- **Non-ticket task** → no Linear/Investigation lines, just Progress + Notes
+- **Ticket needing an investigation** → the `## Investigation` section is the deep record. Append to it; never rewrite it — it is the historical record. Stakeholder feedback lands as a `### <Person>'s responses (YYYY-MM-DD)` subsection replacing an `### Open questions` subsection if one existed.
+- **Ticket without investigation** → omit the `## Investigation` section entirely; deeper context goes in Notes.
+- **Non-ticket task** → no Linear line, just Progress + Notes.
 
-## Investigation page conventions
+### Investigation status vocabulary
 
-Investigations are separate long-form pages (unchanged from prior workflow). They live under the Investigations parent.
-
-Every investigation page should have, in order:
-
-1. **Linear link line:** `**Linear:** [https://linear.app/<workspace>/issue/<TICKET>](...)`
-2. **Status line:** `**Status:** <one short sentence>` — kept current. See status vocabulary below.
-3. **Problem** section
-4. Investigation body (analysis, options, why-not-X discussion)
-5. **Plan / Quick-fix plan** section
-6. **Key files** section (when applicable)
-7. After implementation: **Implementation ([PR #X](url))** section appended (do NOT replace the plan — the investigation is the historical record)
-8. After stakeholder feedback: **<Person>'s responses (YYYY-MM-DD)** section replacing the original "Open questions" section
-
-### Status vocabulary
-
-Pick the most specific phrase that fits. The status line is the single most-read thing on the page.
+The `**Status:**` line under `## Investigation` is the single most-read line. Pick the most specific phrase:
 
 - `awaiting <Person>'s reply on Linear comment posted YYYY-MM-DD`
+- `Root cause identified — awaiting decision on fix`
 - `Plan approved — implementation in progress`
 - `Shipped in [PR #X](url) — awaiting review and manual QA`
 - `Merged in [PR #X](url) — verified on staging`
@@ -142,28 +145,30 @@ Triggers: "worked on <TICKET>", "log progress on <TICKET>", "add note to <TICKET
 2. Append a Progress bullet under `## Progress`: `- YYYY-MM-DD — <what was done>`.
 3. If Status was `To Do`, update to `Doing`.
 
-### C. Mark a ticket done (close out)
+### C. Record an investigation
 
-Triggers: "shipped <TICKET>", "mark <TICKET> done", "closed out <TICKET>", "merged <TICKET>".
+Triggers: "investigated <TICKET>", "write up the investigation", "root cause found for <TICKET>".
+
+1. Find-or-create the Task (workflow A), Status=`Doing`.
+2. Add (or append to) the `## Investigation` section in the task body — Status line, Problem, Root cause / Analysis, Plan, Key files.
+3. Add a Progress bullet summarizing the finding in one line.
+
+### D. Mark a ticket done (close out)
+
+Triggers: "shipped <TICKET>", "mark <TICKET> done", "closed out <TICKET>", "merged <TICKET>", or after `commit push make PR` when a PR exists.
 
 1. Find the Task by ticket ID.
 2. `update_properties`: `Status = Done`, `My Day = false`.
 3. Append final Progress bullet: `- YYYY-MM-DD — Shipped in PR #N`.
 4. If a PR URL is available, add it under `## PRs`.
-5. If an investigation exists for the ticket, run workflow E to update its status line.
+5. If the task has an `## Investigation` section: update its Status line and append the `### Implementation ([PR #X](url))` subsection.
 
-### D. Combined close-out (Task + Investigation)
-
-Triggers: "update Notion after PR #N is opened/merged", "tie up <TICKET>", or after `commit push make PR` when a PR exists.
-
-Run workflow C, then E (in that order — Task first, so the investigation update reflects the final Task state).
-
-### E. Update investigation status only (no Task changes)
+### E. Update investigation status only (no other Task changes)
 
 Triggers: "<TICKET> is now in implementation", "update <TICKET> investigation status".
 
-1. Fetch the investigation page (search by ticket ID; list under the Investigations parent page if title is fuzzy).
-2. Update only the **Status** line. Don't append sections unless asked.
+1. Find the Task by ticket ID.
+2. Update only the `**Status:**` line inside `## Investigation`. Don't append sections unless asked.
 3. If the update reflects a PR, also update the PR link.
 
 ### F. Non-ticket task
@@ -176,29 +181,30 @@ Triggers: "add task: <title>", "log tooling work: <title>".
 
 ## The tie (most important)
 
-Investigations, Tasks, and PRs must stay cross-linked.
+Tasks, their embedded investigations, and PRs must stay consistent.
 
-- **Task ↔ Investigation**: every Task for a ticket that has an investigation MUST link to it in the task body header.
-- **Investigation → PR**: every shipped investigation MUST have the PR link in both the Status line AND the Implementation section heading.
+- **Investigation → PR**: every shipped investigation section MUST have the PR link in both its Status line AND its Implementation subsection heading.
 - **Task → PR**: every Task that produced a PR must have the PR link in the PRs section of the task body.
-- **Investigation → Linear**: every investigation has the Linear link as its first content line. Don't lose this when editing.
+- **Task → Linear**: every ticket Task has the Linear link as its first content line. Don't lose this when editing.
+- **Legacy pages**: a Task may link a pre-cutover investigation page in its header. Treat that page as frozen history — status updates go in the Task's own Investigation section (create one if the ticket is reopened).
 
-If you find an investigation that has been worked on (a Task references it and is Done) but has no Status update on the investigation, flag it — the link is broken.
+If a Task is Done but its Investigation section's Status line was never updated past "in progress", flag it — the record is inconsistent.
 
 ## Tools to use
 
 - `mcp__notion__notion-search` with `data_source_url: "collection://4b71055f-5461-8315-9841-875a168162a4"` — find Tasks by ticket ID in name
-- `mcp__notion__notion-search` with `page_url: "3501055f54618132899be65e6e52acac"` — find investigations by ticket ID
-- `mcp__notion__notion-fetch` — read Tasks, Investigations, or schemas
+- `mcp__notion__notion-search` with `page_url: "3501055f54618132899be65e6e52acac"` — find LEGACY investigation pages by ticket ID (read-only)
+- `mcp__notion__notion-fetch` — read Tasks or schemas
 - `mcp__notion__notion-create-pages` — create Tasks (parent: `data_source_id: 4b71055f-5461-8315-9841-875a168162a4`)
-- `mcp__notion__notion-update-page` with `update_properties` — Task Status, My Day, Hours; Investigation status line
-- `mcp__notion__notion-update-page` with `update_content` — append to Task Progress/PRs/Notes; edit investigation sections
+- `mcp__notion__notion-update-page` with `update_properties` — Task Status, My Day, Hours
+- `mcp__notion__notion-update-page` with `update_content` — append to Task Progress/PRs/Notes/Investigation
 
 ## Important
 
 - **One Task per ticket, ever.** Always search first. Never create a duplicate.
-- **All context in the task body**, not sub-tasks.
-- **Investigation pages remain the historical record** for tickets that have them — never rewrite; append.
+- **All context in the task body**, not sub-tasks and not separate pages.
+- **Never create standalone investigation pages.** The Investigations parent is a frozen legacy archive.
+- **The Investigation section is the historical record** — append, never rewrite.
 - **The old Daily Work DB is trashed** — never write to it; pages created there land in Notion trash silently.
 - **Hours on the Task** is a separate, optional informational field. It does NOT drive work-stats; work-stats reads Hours Log.Hours (user-entered only — never auto-populate).
 - Always pull today's date from the system `currentDate` context — do not guess.
