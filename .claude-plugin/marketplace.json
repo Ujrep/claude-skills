@@ -8,6 +8,11 @@
       "name": "notion-trackers",
       "source": "./",
       "description": "Personal Notion trackers: work hours/earnings/taxes, investigations + daily work, water intake, gym sessions, daily standup."
+    },
+    {
+      "name": "deep-code-review",
+      "source": "./plugins/deep-code-review",
+      "description": "Precision-first multi-persona code review (security, correctness, lean code, i18n\u2026) with a challenge pass that refutes false positives."
     }
   ]
 }
