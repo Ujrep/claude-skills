@@ -1,0 +1,7 @@
+{
+  "name": "deep-code-review",
+  "description": "Precision-first multi-persona code review: security, correctness, performance, architecture, operations, lean code (no useless tests or dead code), standards, docs and i18n, with a challenge pass that refutes false positives.",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Ujrep/claude-skills",
+  "repository": "https://github.com/Ujrep/claude-skills"
+}
